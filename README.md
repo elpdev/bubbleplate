@@ -32,6 +32,14 @@ go test ./...
 goreleaser release --snapshot --clean
 ```
 
+## Docker
+
+Manual publishes build and push multi-arch images to GitHub Container Registry:
+
+```sh
+docker run --rm -it ghcr.io/elpdev/bubbleplate:latest
+```
+
 ## Release
 
 ```sh
