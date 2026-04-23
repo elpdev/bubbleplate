@@ -1,6 +1,26 @@
 # Bubbleplate
 
-Bubbleplate is an opinionated Bubble Tea starter kit for building Go TUIs.
+Bubbleplate is an opinionated generator for building Bubble Tea TUI projects in Go.
+
+## Generate a Project
+
+```sh
+go run ./cmd/bubbleplate new myapp --module github.com/acme/myapp
+cd myapp
+go mod tidy
+go test ./...
+go run ./cmd/myapp
+```
+
+Useful options:
+
+```sh
+go run ./cmd/bubbleplate new myapp \
+  --module github.com/acme/myapp \
+  --output ../myapp \
+  --display-name "My App" \
+  --description "My terminal app"
+```
 
 ## Features
 
@@ -16,8 +36,10 @@ Bubbleplate is an opinionated Bubble Tea starter kit for building Go TUIs.
 
 ## Development
 
+Run the Bubbleplate demo shell:
+
 ```sh
-go run ./cmd/bubbleplate
+go run ./cmd/bubbleplate demo
 ```
 
 ## Test

@@ -1,18 +1,6 @@
 # AGENTS.md
 
-Guidance for AI agents and contributors working on Bubbleplate or in a project generated from Bubbleplate.
-
-## Bubbleplate Source Development
-
-Bubbleplate itself is a generator CLI. The main commands are:
-
-- `bubbleplate new <name> --module <module-path>` generates a new TUI project.
-- `bubbleplate demo` runs the demo TUI shell.
-- `bubbleplate --version` prints version metadata.
-
-The embedded project template lives in `internal/generator/testdata/starter`. When changing the starter app shell, keep the live demo code and embedded template aligned where practical.
-
-Use `[[ .Name ]]` style placeholders in starter templates. The generator uses custom `[[` and `]]` delimiters so GitHub workflow expressions like `${{ github.ref }}` remain valid.
+Guidance for AI agents and contributors working in a project generated from Bubbleplate.
 
 ## Project Intent
 
@@ -43,7 +31,7 @@ Be careful mixing Bubble Tea v1 and v2 types. Some Bubbles components may still 
 
 ## Project Layout
 
-- `cmd/bubbleplate`: CLI entrypoint, flags, version metadata, program startup. Rename this package path and binary when adapting the template.
+- `cmd/[[ .BinaryName ]]`: CLI entrypoint, flags, version metadata, program startup. Rename this package path and binary when adapting the template.
 - `internal/app`: root Bubble Tea model, routing, global update/view wiring, keybindings, app messages.
 - `internal/commands`: command registry and command palette model.
 - `internal/components`: reusable shell UI pieces such as header, sidebar, footer, and modal overlays.
@@ -91,7 +79,7 @@ Preserve these shell behaviors unless the product explicitly requires different 
 
 ## Template Cleanup Checklist
 
-Generated projects should already have these values filled in by `bubbleplate new`. If adapting manually, update:
+When turning this starter into a real project, update:
 
 - Module path in `go.mod`.
 - Binary/package path under `cmd/`.
@@ -99,7 +87,7 @@ Generated projects should already have these values filled in by `bubbleplate ne
 - README title, description, development commands, and release instructions.
 - GitHub repository references and release workflow assumptions.
 - License owner/year if needed.
-- Starter screen text that still says Bubbleplate.
+- Starter screen text that still says Bubbleplate or references template-only copy.
 
 Do not remove the tests or release configuration unless the project has a replacement.
 
@@ -116,7 +104,7 @@ go test ./...
 For build verification, run:
 
 ```sh
-go build ./cmd/bubbleplate
+go build ./cmd/[[ .BinaryName ]]
 ```
 
 If the binary path has been renamed, use the project's current command path instead. Remove generated binaries after local build checks.
