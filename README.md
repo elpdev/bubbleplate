@@ -10,7 +10,7 @@ Bubbleplate is an opinionated Bubble Tea starter kit for building Go TUIs.
 - Screen router
 - Global keybindings
 - Help overlay
-- Theme system
+- Theme system with Phosphor, Muted Dark, and Miami themes
 - Logs/debug screen
 - GoReleaser release pipeline
 

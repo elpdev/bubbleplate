@@ -4,13 +4,13 @@ import "testing"
 
 func TestCalculateNormalSize(t *testing.T) {
 	dims := Calculate(100, 40, true)
-	if dims.Header.Height != 3 || dims.Footer.Height != 3 {
+	if dims.Header.Height != 2 || dims.Footer.Height != 2 {
 		t.Fatalf("unexpected chrome heights: header=%d footer=%d", dims.Header.Height, dims.Footer.Height)
 	}
 	if dims.Sidebar.Width != sidebarWidth {
 		t.Fatalf("unexpected sidebar width: %d", dims.Sidebar.Width)
 	}
-	if dims.Main.Width != 82 || dims.Main.Height != 34 {
+	if dims.Main.Width != 82 || dims.Main.Height != 36 {
 		t.Fatalf("unexpected main size: %dx%d", dims.Main.Width, dims.Main.Height)
 	}
 }

@@ -53,14 +53,14 @@ func New(meta BuildInfo) Model {
 		focus:        FocusMain,
 		keys:         DefaultKeyMap(),
 		commands:     commands.NewRegistry(),
-		theme:        theme.Default(),
+		theme:        theme.Phosphor(),
 		logs:         log,
 		meta:         meta,
 	}
 
 	m.registerScreens()
 	m.registerCommands()
-	m.commandPalette = commands.NewPaletteModel(m.commands)
+	m.commandPalette = commands.NewPaletteModel(m.commands, theme.BuiltIns())
 	return m
 }
 
@@ -115,7 +115,7 @@ func (m *Model) registerCommands() {
 	m.commands.Register(commands.Command{ID: "go-help", Title: "Go to Help", Description: "Open keyboard and command documentation", Keywords: []string{"help", "keys", "docs"}, Run: func() tea.Cmd { return func() tea.Msg { return routeMsg{"help"} } }})
 	m.commands.Register(commands.Command{ID: "go-logs", Title: "Go to Logs", Description: "Open debug event log", Keywords: []string{"logs", "debug", "events"}, Run: func() tea.Cmd { return func() tea.Msg { return routeMsg{"logs"} } }})
 	m.commands.Register(commands.Command{ID: "toggle-sidebar", Title: "Toggle Sidebar", Description: "Show or hide sidebar navigation", Keywords: []string{"sidebar", "layout"}, Run: func() tea.Cmd { return func() tea.Msg { return toggleSidebarMsg{} } }})
-	m.commands.Register(commands.Command{ID: "toggle-theme", Title: "Toggle Theme", Description: "Switch active theme", Keywords: []string{"theme", "dark", "muted"}, Run: func() tea.Cmd { return func() tea.Msg { return toggleThemeMsg{} } }})
+	m.commands.Register(commands.Command{ID: "themes", Title: "Themes", Description: "Preview and select a theme", Keywords: []string{"theme", "themes", "appearance", "colors", "dark", "muted", "phosphor", "miami"}})
 	m.commands.Register(commands.Command{ID: "quit", Title: "Quit", Description: "Exit Bubbleplate", Keywords: []string{"exit", "close"}, Run: func() tea.Cmd { return func() tea.Msg { return quitMsg{} } }})
 }
 
