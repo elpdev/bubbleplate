@@ -5,8 +5,8 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/elpdev/bubbleplate/internal/commands"
 	"github.com/elpdev/bubbleplate/internal/screens"
-	"github.com/elpdev/bubbleplate/internal/theme"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -23,15 +23,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case toggleSidebarMsg:
 		m.showSidebar = !m.showSidebar
 		m.logs.Info(fmt.Sprintf("Sidebar toggled: %t", m.showSidebar))
-		m.updateDerivedScreens()
-		return m, nil
-	case toggleThemeMsg:
-		if m.theme.Name == theme.Default().Name {
-			m.theme = theme.MutedDark()
-		} else {
-			m.theme = theme.Default()
-		}
-		m.logs.Info(fmt.Sprintf("Theme toggled: %s", m.theme.Name))
 		m.updateDerivedScreens()
 		return m, nil
 	case quitMsg:
@@ -67,15 +58,14 @@ func (m Model) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.showCommandPalette {
-		if key.Matches(msg, m.keys.Cancel) {
-			m.showCommandPalette = false
-			return m, nil
-		}
 		palette, cmd := m.commandPalette.Update(msg)
 		m.commandPalette = palette
+		if action := m.commandPalette.Action(); action.Type != commands.PaletteActionNone {
+			return m.handlePaletteAction(action)
+		}
 		if executed := m.commandPalette.ExecutedCommand(); executed != nil {
 			m.showCommandPalette = false
-			m.commandPalette.Reset()
+			m.commandPalette.Reset(m.theme.Name)
 			return m, func() tea.Msg { return commandsExecutedMsg{Title: executed.Title, Cmd: executed.Run()} }
 		}
 		return m, cmd
@@ -91,7 +81,7 @@ func (m Model) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	switch {
 	case key.Matches(msg, m.keys.Commands):
 		m.showCommandPalette = true
-		m.commandPalette.Reset()
+		m.commandPalette.Reset(m.theme.Name)
 		return m, nil
 	case key.Matches(msg, m.keys.Help):
 		m.showHelp = true
@@ -117,6 +107,36 @@ func (m Model) handleKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	updated, cmd := active.Update(msg)
 	m.screens[m.activeScreen] = updated
 	return m, cmd
+}
+
+func (m Model) handlePaletteAction(action commands.PaletteAction) (tea.Model, tea.Cmd) {
+	m.commandPalette.ClearAction()
+	switch action.Type {
+	case commands.PaletteActionClose:
+		m.showCommandPalette = false
+		m.commandPalette.Reset(m.theme.Name)
+		return m, nil
+	case commands.PaletteActionExecute:
+		m.showCommandPalette = false
+		m.commandPalette.Reset(m.theme.Name)
+		return m, func() tea.Msg { return commandsExecutedMsg{Title: action.Command.Title, Cmd: action.Command.Run()} }
+	case commands.PaletteActionPreviewTheme:
+		m.theme = *action.Theme
+		m.updateDerivedScreens()
+		return m, nil
+	case commands.PaletteActionConfirmTheme:
+		m.theme = *action.Theme
+		m.logs.Info(fmt.Sprintf("Theme selected: %s", m.theme.Name))
+		m.updateDerivedScreens()
+		m.showCommandPalette = false
+		m.commandPalette.Reset(m.theme.Name)
+		return m, nil
+	case commands.PaletteActionCancelTheme:
+		m.theme = *action.Theme
+		m.updateDerivedScreens()
+		return m, nil
+	}
+	return m, nil
 }
 
 func (m Model) handleSidebarKey(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {

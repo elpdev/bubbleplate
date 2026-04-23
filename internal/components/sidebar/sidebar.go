@@ -18,6 +18,9 @@ type Model struct {
 }
 
 func View(m Model, width, height int, t theme.Theme) string {
+	frameWidth, frameHeight := t.Sidebar.GetFrameSize()
+	innerWidth := max(0, width-frameWidth)
+	innerHeight := max(0, height-frameHeight)
 	var b strings.Builder
 	if m.Focused {
 		b.WriteString(t.Title.Render("Navigation"))
@@ -34,5 +37,12 @@ func View(m Model, width, height int, t theme.Theme) string {
 		}
 		b.WriteString(line + "\n")
 	}
-	return t.Sidebar.Width(width).Height(height).Render(b.String())
+	return t.Sidebar.Width(innerWidth).Height(innerHeight).Render(b.String())
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

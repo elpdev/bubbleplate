@@ -1,9 +1,14 @@
 package theme
 
-import "charm.land/lipgloss/v2"
+import (
+	"image/color"
+
+	"charm.land/lipgloss/v2"
+)
 
 type Theme struct {
-	Name string
+	Name       string
+	Background color.Color
 
 	Text     lipgloss.Style
 	Muted    lipgloss.Style

@@ -1,8 +1,8 @@
 package layout
 
 const (
-	headerHeight = 3
-	footerHeight = 3
+	headerHeight = 2
+	footerHeight = 2
 	sidebarWidth = 18
 )
 

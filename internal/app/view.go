@@ -21,9 +21,12 @@ func (m Model) View() tea.View {
 	dims := layout.Calculate(m.width, m.height, m.showSidebar)
 	active := m.screens[m.activeScreen]
 
-	head := header.View(header.Model{AppName: "Bubbleplate", ScreenTitle: active.Title(), Version: m.meta.Version}, dims.Header.Width, m.theme)
-	foot := footer.View(m.keys.ShortHelp(), dims.Footer.Width, m.theme)
-	main := m.theme.Main.Width(dims.Main.Width).Height(dims.Main.Height).Render(active.View(dims.Main.Width, dims.Main.Height))
+	head := header.View(header.Model{AppName: "Bubbleplate", ScreenTitle: active.Title(), Version: m.meta.Version}, dims.Header.Width, dims.Header.Height, m.theme)
+	foot := footer.View(m.keys.ShortHelp(), dims.Footer.Width, dims.Footer.Height, m.theme)
+	mainFrameWidth, mainFrameHeight := m.theme.Main.GetFrameSize()
+	mainWidth := max(0, dims.Main.Width-mainFrameWidth)
+	mainHeight := max(0, dims.Main.Height-mainFrameHeight)
+	main := m.theme.Main.Width(mainWidth).Height(mainHeight).Render(active.View(mainWidth, mainHeight))
 
 	body := main
 	if m.showSidebar && dims.Sidebar.Width > 0 {
@@ -32,7 +35,7 @@ func (m Model) View() tea.View {
 	}
 
 	view := lipgloss.JoinVertical(lipgloss.Left, head, body, foot)
-	view = lipgloss.NewStyle().Width(m.width).Height(m.height).Render(view)
+	view = lipgloss.NewStyle().Width(m.width).Height(m.height).Background(m.theme.Background).Render(view)
 
 	if m.showHelp {
 		view = modal.Overlay(view, m.helpOverlay(), m.width, m.height, m.theme)
@@ -41,7 +44,17 @@ func (m Model) View() tea.View {
 		view = modal.Overlay(view, m.commandPalette.View(m.theme), m.width, m.height, m.theme)
 	}
 
-	return tea.NewView(view)
+	rendered := tea.NewView(view)
+	rendered.AltScreen = true
+	rendered.BackgroundColor = m.theme.Background
+	return rendered
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 func (m Model) sidebarItems() []sidebar.Item {
