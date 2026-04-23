@@ -1,6 +1,6 @@
 # Bubbleplate
 
-Bubbleplate is an opinionated generator for building Bubble Tea TUI projects in Go.
+Bubbleplate is an opinionated generator for building Go TUI projects with the [Charm](https://charm.sh) stack: Bubble Tea, Lip Gloss, and Bubbles.
 
 ## Generate a Project
 
@@ -25,6 +25,7 @@ go run ./cmd/bubbleplate new myapp \
 ## Features
 
 - Bubble Tea v2 app shell
+- Charm stack conventions
 - Command palette
 - Header/sidebar/main/footer layout
 - Screen router
