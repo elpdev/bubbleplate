@@ -42,6 +42,37 @@ archives:
 checksum:
   name_template: checksums.txt
 
+brews:
+  - name: bubbleplate
+    ids: [default]
+    directory: Formula
+    repository:
+      owner: elpdev
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    commit_msg_template: "chore: update bubbleplate formula to {{ .Tag }}"
+    homepage: https://github.com/elpdev/bubbleplate
+    description: "Opinionated generator for Go terminal UI projects built with the Charm stack"
+    license: MIT
+    install: |
+      bin.install "bubbleplate"
+
+aurs:
+  - name: bubbleplate-bin
+    ids: [default]
+    homepage: https://github.com/elpdev/bubbleplate
+    description: "Opinionated generator for Go terminal UI projects built with the Charm stack"
+    maintainers: ["elpdev <noreply@github.com>"]
+    license: MIT
+    private_key: "{{ .Env.AUR_KEY }}"
+    git_url: "ssh://aur@aur.archlinux.org/bubbleplate-bin.git"
+    skip_upload: auto
+    package: |-
+      install -Dm755 bubbleplate "${pkgdir}/usr/bin/bubbleplate"
+
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
 
