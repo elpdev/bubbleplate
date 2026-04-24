@@ -34,6 +34,7 @@ func TestGenerateCreatesNamedProject(t *testing.T) {
 	assertFileContains(t, output, "README.md", "# My App")
 	assertFileContains(t, output, "README.md", "My generated TUI")
 	assertFileContains(t, output, "README.md", "ghcr.io/acme/myapp:latest")
+	assertFileWritable(t, output, "go.mod")
 }
 
 func TestGenerateRefusesNonEmptyOutputWithoutForce(t *testing.T) {
@@ -78,6 +79,17 @@ func assertFileContains(t *testing.T, root, name, want string) {
 	}
 	if !strings.Contains(string(content), want) {
 		t.Fatalf("expected %s to contain %q", name, want)
+	}
+}
+
+func assertFileWritable(t *testing.T, root, name string) {
+	t.Helper()
+	info, err := os.Stat(filepath.Join(root, name))
+	if err != nil {
+		t.Fatalf("stat %s: %v", name, err)
+	}
+	if info.Mode().Perm()&0o200 == 0 {
+		t.Fatalf("expected %s to be owner-writable, got mode %v", name, info.Mode().Perm())
 	}
 }
 

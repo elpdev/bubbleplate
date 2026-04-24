@@ -169,7 +169,7 @@ func fileMode(entry fs.DirEntry) os.FileMode {
 	if mode == 0 {
 		return 0o644
 	}
-	return mode
+	return mode | 0o200
 }
 
 func titleName(name string) string {
