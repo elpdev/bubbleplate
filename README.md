@@ -2,10 +2,40 @@
 
 Bubbleplate is an opinionated generator for building Go TUI projects with the [Charm](https://charm.sh) stack: Bubble Tea, Lip Gloss, and Bubbles.
 
-## Generate a Project
+## Install
+
+Homebrew:
 
 ```sh
-go run ./cmd/bubbleplate new myapp --module github.com/acme/myapp
+brew install elpdev/tap/bubbleplate
+```
+
+Arch Linux via AUR with yay:
+
+```sh
+yay -S bubbleplate-bin
+```
+
+Or install from the AUR manually:
+
+```sh
+git clone https://aur.archlinux.org/bubbleplate-bin.git
+cd bubbleplate-bin
+makepkg -si
+```
+
+## Generate a Project
+
+Launch the interactive generator:
+
+```sh
+bubbleplate
+```
+
+Or generate non-interactively:
+
+```sh
+bubbleplate new myapp --module github.com/acme/myapp
 cd myapp
 go mod tidy
 go test ./...
@@ -15,7 +45,7 @@ go run ./cmd/myapp
 Useful options:
 
 ```sh
-go run ./cmd/bubbleplate new myapp \
+bubbleplate new myapp \
   --module github.com/acme/myapp \
   --output ../myapp \
   --display-name "My App" \
@@ -40,21 +70,7 @@ go run ./cmd/bubbleplate new myapp \
 Run the Bubbleplate demo shell:
 
 ```sh
-go run ./cmd/bubbleplate demo
-```
-
-## Install
-
-Homebrew:
-
-```sh
-brew install elpdev/tap/bubbleplate
-```
-
-Arch Linux via AUR:
-
-```sh
-yay -S bubbleplate-bin
+bubbleplate demo
 ```
 
 ## Test
@@ -87,5 +103,5 @@ git push origin v0.1.0
 ## Version
 
 ```sh
-go run ./cmd/bubbleplate --version
+bubbleplate --version
 ```
