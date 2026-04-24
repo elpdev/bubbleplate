@@ -8,6 +8,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/elpdev/bubbleplate/internal/app"
 	"github.com/elpdev/bubbleplate/internal/generator"
+	"github.com/elpdev/bubbleplate/internal/generatorui"
 )
 
 var (
@@ -31,7 +32,7 @@ func main() {
 
 	args := root.Args()
 	if len(args) == 0 {
-		printUsage()
+		runGeneratorUI()
 		return
 	}
 
@@ -47,6 +48,23 @@ func main() {
 		printUsage()
 		os.Exit(2)
 	}
+}
+
+func runGeneratorUI() {
+	if !isTerminal(os.Stdin) || !isTerminal(os.Stdout) {
+		printUsage()
+		return
+	}
+	program := tea.NewProgram(generatorui.New())
+	if _, err := program.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "bubbleplate: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func isTerminal(file *os.File) bool {
+	info, err := file.Stat()
+	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
 
 func runDemo() {
@@ -117,11 +135,14 @@ func printUsage() {
 	fmt.Fprintf(os.Stderr, `Bubbleplate generates opinionated Bubble Tea TUI projects.
 
 Usage:
+  bubbleplate
   bubbleplate new <name> --module <module-path> [options]
   bubbleplate demo
   bubbleplate --version
+  bubbleplate --help
 
 Examples:
+  bubbleplate
   bubbleplate new myapp --module github.com/acme/myapp
   bubbleplate new myapp --module github.com/acme/myapp --output ../myapp
   bubbleplate demo

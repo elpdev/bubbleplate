@@ -4,6 +4,14 @@ Bubbleplate is an opinionated generator for building Go TUI projects with the [C
 
 ## Generate a Project
 
+Launch the interactive generator:
+
+```sh
+bubbleplate
+```
+
+Or generate non-interactively:
+
 ```sh
 go run ./cmd/bubbleplate new myapp --module github.com/acme/myapp
 cd myapp
