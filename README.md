@@ -43,6 +43,20 @@ Run the Bubbleplate demo shell:
 go run ./cmd/bubbleplate demo
 ```
 
+## Install
+
+Homebrew:
+
+```sh
+brew install elpdev/tap/bubbleplate
+```
+
+Arch Linux via AUR:
+
+```sh
+yay -S bubbleplate-bin
+```
+
 ## Test
 
 ```sh
