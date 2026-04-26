@@ -24,6 +24,8 @@ github.com/clipperhouse/displaywidth v0.11.0 h1:lBc6kY44VFw+TDx4I8opi/EtL9m20WSE
 github.com/clipperhouse/displaywidth v0.11.0/go.mod h1:bkrFNkf81G8HyVqmKGxsPufD3JhNl3dSqnGhOoSD/o0=
 github.com/clipperhouse/uax29/v2 v2.7.0 h1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJv2v7Vk=
 github.com/clipperhouse/uax29/v2 v2.7.0/go.mod h1:EFJ2TJMRUaplDxHKj1qAEhCtQPW2tJSwu5BF98AuoVM=
+github.com/elpdev/tuilayout v0.1.0 h1:5LYPUys6ZVpQwZpnlNNDcmUY7f2N8JEwcVaPQu+gTdg=
+github.com/elpdev/tuilayout v0.1.0/go.mod h1:dWYMp6S4YlpdbuYX/W2F+t9VnOIAK/kCG8BCKdQZ2Co=
 github.com/elpdev/tuimod v0.1.0 h1:yNlYJM4itFoNIJiIO41sZBWHTAipIOg9uC6q77lSzkg=
 github.com/elpdev/tuimod v0.1.0/go.mod h1:2tr3ih75MDdOHMzptplTuvM4R191aOlKjw6Y4vkCoZw=
 github.com/elpdev/tuipalette v0.2.0 h1:WmxM4I2MR2de3y9TKyhb6px+FTtyC1kvgeDbVSZtG6I=
