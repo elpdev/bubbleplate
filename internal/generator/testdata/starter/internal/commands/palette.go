@@ -1,30 +1,22 @@
 package commands
 
 import (
-	"fmt"
-	"strings"
-
 	"[[ .ModulePath ]]/internal/theme"
 	tea "charm.land/bubbletea/v2"
+	"github.com/elpdev/tuipalette"
 )
+
+const pageThemes = "themes"
 
 type PaletteModel struct {
 	registry *Registry
 	themes   []theme.Theme
-	query    string
-	selected int
+	inner    tuipalette.PaletteModel
+	ctx      Context
+	original string
 	executed *Command
 	action   PaletteAction
-	page     palettePage
-	original string
 }
-
-type palettePage int
-
-const (
-	paletteRoot palettePage = iota
-	paletteThemes
-)
 
 type PaletteAction struct {
 	Type    PaletteActionType
@@ -44,201 +36,120 @@ const (
 )
 
 func NewPaletteModel(registry *Registry, themes []theme.Theme) PaletteModel {
-	return PaletteModel{registry: registry, themes: themes}
+	m := PaletteModel{registry: registry, themes: themes}
+	m.rebuildInner()
+	return m
 }
 
 func (m PaletteModel) Update(msg tea.Msg) (PaletteModel, tea.Cmd) {
 	m.executed = nil
 	m.action = PaletteAction{}
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		if m.page == paletteThemes {
-			return m.updateThemes(msg), nil
-		}
-		switch msg.String() {
-		case "esc":
-			m.action = PaletteAction{Type: PaletteActionClose}
-			return m, nil
-		case "up", "ctrl+p":
-			if m.selected > 0 {
-				m.selected--
-			}
-			return m, nil
-		case "down", "ctrl+n":
-			if m.selected < len(m.matches())-1 {
-				m.selected++
-			}
-			return m, nil
-		case "enter":
-			matches := m.matches()
-			if len(matches) == 0 {
-				return m, nil
-			}
-			command := matches[m.selected]
-			if command.ID == "themes" {
-				m.openThemes()
-				return m, nil
-			}
-			m.executed = &command
-			m.action = PaletteAction{Type: PaletteActionExecute, Command: &command}
-			return m, nil
-		case "backspace", "ctrl+h":
-			if len(m.query) > 0 {
-				m.query = m.query[:len(m.query)-1]
-				m.selected = 0
-			}
-			return m, nil
-		case "space":
-			m.query += " "
-			m.selected = 0
-			return m, nil
-		}
-		if len(msg.String()) == 1 {
-			m.query += msg.String()
-			m.selected = 0
-			return m, nil
-		}
-	}
-	if m.selected >= len(m.matches()) {
-		m.selected = 0
-	}
-	return m, nil
-}
-
-func (m PaletteModel) updateThemes(msg tea.KeyPressMsg) PaletteModel {
-	switch msg.String() {
-	case "esc", "backspace", "ctrl+h":
-		if original, ok := m.themeByName(m.original); ok {
-			m.action = PaletteAction{Type: PaletteActionCancelTheme, Theme: &original}
-		}
-		m.page = paletteRoot
-		m.query = ""
-		m.selected = 0
-		return m
-	case "up", "ctrl+p":
-		if m.selected > 0 {
-			m.selected--
-			m.previewSelectedTheme()
-		}
-		return m
-	case "down", "ctrl+n":
-		if m.selected < len(m.themes)-1 {
-			m.selected++
-			m.previewSelectedTheme()
-		}
-		return m
-	case "enter":
-		if len(m.themes) == 0 {
-			return m
-		}
-		selected := m.themes[m.selected]
-		m.action = PaletteAction{Type: PaletteActionConfirmTheme, Theme: &selected}
-		return m
-	}
-	return m
+	inner, cmd := m.inner.Update(msg)
+	m.inner = inner
+	m.translateAction(m.inner.Action())
+	return m, cmd
 }
 
 func (m PaletteModel) View(t theme.Theme) string {
-	if m.page == paletteThemes {
-		return m.themeView(t)
-	}
-
-	matches := m.matches()
-	var b strings.Builder
-	b.WriteString(t.Title.Render("Command Palette"))
-	b.WriteString("\n")
-	query := m.query
-	if query == "" {
-		query = t.Muted.Render("type a command...")
-	}
-	b.WriteString("> " + query)
-	b.WriteString("\n\n")
-
-	if len(matches) == 0 {
-		b.WriteString(t.Muted.Render("No commands found"))
-	} else {
-		for i, command := range matches {
-			line := fmt.Sprintf("%-18s %s", command.Title, command.Description)
-			if i == m.selected {
-				line = t.Selected.Render(line)
-			} else {
-				line = t.Text.Render(line)
-			}
-			b.WriteString(line + "\n")
-		}
-	}
-
-	return t.Modal.Width(62).Render(b.String())
+	m.inner.SetStyles(stylesFromTheme(t))
+	return m.inner.View()
 }
 
-func (m PaletteModel) themeView(t theme.Theme) string {
-	var b strings.Builder
-	b.WriteString(t.Title.Render("Command Palette / Themes"))
-	b.WriteString("\n")
-	b.WriteString(t.Muted.Render("Move to preview, enter to select, esc to go back."))
-	b.WriteString("\n\n")
-
-	for i, candidate := range m.themes {
-		line := candidate.Name
-		if candidate.Name == t.Name {
-			line += "  current"
-		}
-		if i == m.selected {
-			line = t.Selected.Render(line)
-		} else {
-			line = t.Text.Render("  " + line)
-		}
-		b.WriteString(line + "\n")
-	}
-
-	return t.Modal.Width(62).Render(b.String())
-}
-
-func (m *PaletteModel) Reset(currentTheme string) {
-	m.query = ""
-	m.selected = 0
+func (m *PaletteModel) Reset(currentTheme string, ctx Context) {
+	m.ctx = ctx
+	m.original = currentTheme
 	m.executed = nil
 	m.action = PaletteAction{}
-	m.page = paletteRoot
-	m.original = currentTheme
+	m.rebuildInner()
+	m.inner.Reset(ctx)
 }
 
 func (m PaletteModel) ExecutedCommand() *Command { return m.executed }
 
 func (m PaletteModel) Action() PaletteAction { return m.action }
 
-func (m *PaletteModel) ClearAction() { m.action = PaletteAction{} }
-
-func (m PaletteModel) matches() []Command { return m.registry.Filter(m.query) }
-
-func (m *PaletteModel) openThemes() {
-	m.page = paletteThemes
-	m.query = ""
-	m.selected = m.themeIndex(m.original)
+func (m *PaletteModel) ClearAction() {
+	m.action = PaletteAction{}
+	m.inner.ClearAction()
 }
 
-func (m *PaletteModel) previewSelectedTheme() {
-	if len(m.themes) == 0 {
-		return
-	}
-	selected := m.themes[m.selected]
-	m.action = PaletteAction{Type: PaletteActionPreviewTheme, Theme: &selected}
+func (m *PaletteModel) rebuildInner() {
+	m.inner = tuipalette.NewPaletteModel(m.registry, tuipalette.Options{
+		Title:              "[[ .DisplayName ]]",
+		Placeholder:        "type a command...",
+		Modules:            []string{ModuleHome, ModuleSettings, ModuleHelp, ModuleLogs, ModuleGlobal},
+		ReservedNamespaces: []string{ModuleHome, ModuleSettings, ModuleHelp, ModuleLogs},
+		Pages: map[string]tuipalette.Page{
+			pageThemes: newThemePage(m.themes, m.original),
+		},
+	})
 }
 
-func (m PaletteModel) themeIndex(name string) int {
-	for i, candidate := range m.themes {
-		if candidate.Name == name {
-			return i
+func (m *PaletteModel) translateAction(action tuipalette.PaletteAction) {
+	switch action.Type {
+	case tuipalette.PaletteActionClose:
+		m.action = PaletteAction{Type: PaletteActionClose}
+	case tuipalette.PaletteActionExecute:
+		if action.Command == nil {
+			return
+		}
+		command, ok := m.registry.Find(action.Command.ID)
+		if !ok {
+			return
+		}
+		m.executed = &command
+		m.action = PaletteAction{Type: PaletteActionExecute, Command: &command}
+	case tuipalette.PaletteActionBack:
+		if action.Page == "theme-cancel" {
+			if selected, ok := action.Data.(theme.Theme); ok {
+				m.action = PaletteAction{Type: PaletteActionCancelTheme, Theme: &selected}
+			}
+		}
+	case tuipalette.PaletteActionPage:
+		selected, ok := action.Data.(theme.Theme)
+		if !ok {
+			return
+		}
+		switch action.Page {
+		case "theme-preview":
+			m.action = PaletteAction{Type: PaletteActionPreviewTheme, Theme: &selected}
+		case "theme-confirm":
+			m.action = PaletteAction{Type: PaletteActionConfirmTheme, Theme: &selected}
 		}
 	}
-	return 0
 }
 
-func (m PaletteModel) themeByName(name string) (theme.Theme, bool) {
-	for _, candidate := range m.themes {
-		if candidate.Name == name {
-			return candidate, true
-		}
+func stylesFromTheme(t theme.Theme) tuipalette.Styles {
+	return tuipalette.Styles{
+		Modal:    t.Modal,
+		Title:    t.Title,
+		Text:     t.Text,
+		Muted:    t.Muted,
+		Selected: t.Selected,
+		Accent:   t.PaletteAccent,
 	}
-	return theme.Theme{}, false
+}
+
+func newThemePage(themes []theme.Theme, original string) tuipalette.SelectPage {
+	items := make([]tuipalette.SelectItem, 0, len(themes))
+	selected := 0
+	var cancelData any
+	for i, candidate := range themes {
+		current := candidate.Name == original
+		if current {
+			selected = i
+			cancelData = candidate
+		}
+		items = append(items, tuipalette.SelectItem{Label: candidate.Name, Current: current, Value: candidate})
+	}
+	return tuipalette.NewSelectPage(tuipalette.SelectPageOptions{
+		Title:       "[[ .DisplayName ]] / Themes",
+		Subtitle:    "Move to preview, enter to select, esc to go back.",
+		Items:       items,
+		Selected:    selected,
+		PreviewPage: "theme-preview",
+		ConfirmPage: "theme-confirm",
+		CancelPage:  "theme-cancel",
+		CancelData:  cancelData,
+	})
 }

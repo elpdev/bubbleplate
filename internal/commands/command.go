@@ -1,11 +1,14 @@
 package commands
 
-import tea "charm.land/bubbletea/v2"
+import "github.com/elpdev/tuipalette"
 
-type Command struct {
-	ID          string
-	Title       string
-	Description string
-	Keywords    []string
-	Run         func() tea.Cmd
-}
+const (
+	ModuleHome     = "home"
+	ModuleSettings = "settings"
+	ModuleHelp     = "help"
+	ModuleLogs     = "logs"
+	ModuleGlobal   = "global"
+)
+
+type Command = tuipalette.Command
+type Context = tuipalette.Context

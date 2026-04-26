@@ -20,7 +20,7 @@ func TestRegistryFilter(t *testing.T) {
 	registry.Register(Command{ID: "go-home", Title: "Go to Home", Description: "Open home", Keywords: []string{"start"}})
 	registry.Register(Command{ID: "toggle-theme", Title: "Toggle Theme", Description: "Switch colors", Keywords: []string{"dark"}})
 
-	matches := registry.Filter("dark")
+	matches := registry.Filter("dark", Context{})
 	if len(matches) != 1 {
 		t.Fatalf("expected one match, got %d", len(matches))
 	}
