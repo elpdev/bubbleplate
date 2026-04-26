@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/bubbles v1.0.0
 	github.com/elpdev/tuilayout v0.1.0
 	github.com/elpdev/tuimod v0.1.0
-	github.com/elpdev/tuipalette v0.2.0
+	github.com/elpdev/tuipalette v0.3.0
 	github.com/elpdev/tuitheme v0.1.0
 )
 
