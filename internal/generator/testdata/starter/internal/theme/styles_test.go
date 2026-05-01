@@ -2,12 +2,14 @@ package theme
 
 import "testing"
 
-func TestBuiltInsIncludesPandoThemes(t *testing.T) {
+func TestBuiltInsIncludesUpstreamThemes(t *testing.T) {
 	themes := BuiltIns()
 	want := map[string]bool{
-		"Muted Dark": false,
-		"Phosphor":   false,
-		"Miami":      false,
+		"Phosphor":         false,
+		"Dracula":          false,
+		"Tokyo Night":      false,
+		"Catppuccin Mocha": false,
+		"Monokai":          false,
 	}
 
 	for _, theme := range themes {
@@ -24,11 +26,11 @@ func TestBuiltInsIncludesPandoThemes(t *testing.T) {
 }
 
 func TestNextCyclesThemes(t *testing.T) {
-	if next := Next("Phosphor"); next.Name != "Muted Dark" {
-		t.Fatalf("expected Muted Dark after Phosphor, got %q", next.Name)
+	if next := Next("Phosphor"); next.Name != "Dracula" {
+		t.Fatalf("expected Dracula after Phosphor, got %q", next.Name)
 	}
-	if next := Next("Miami"); next.Name != "Phosphor" {
-		t.Fatalf("expected Phosphor after Miami, got %q", next.Name)
+	if next := Next("Monokai"); next.Name != "Phosphor" {
+		t.Fatalf("expected Phosphor after Monokai, got %q", next.Name)
 	}
 }
 
