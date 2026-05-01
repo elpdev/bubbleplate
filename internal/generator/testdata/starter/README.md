@@ -10,7 +10,7 @@
 - Screen router
 - Global keybindings
 - Help overlay
-- Theme system with Phosphor, Muted Dark, and Miami themes
+- Theme system with tuitheme built-in themes
 - Logs/debug screen
 - GoReleaser release pipeline
 
